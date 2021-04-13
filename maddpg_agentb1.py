@@ -94,12 +94,10 @@ class Agent():
         
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
-        next_actions = [agent.actor_target(states) for agent, states in zip(all_agents, next_states_list)]     
-#         next_actions = [self.actor_target(states) for states in next_states_list] 
+        next_actions = [agent.actor_target(states) for agent, states in zip(all_agents, next_states_list)]
         next_actions_tensor = torch.cat(next_actions, dim=1).to(device)
         Q_targets_next = self.critic_target(next_states_tensor, next_actions_tensor)        
-        # Compute Q targets for current states (y_i)
-#         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))  
+        # Compute Q targets for current states (y_i) 
         Q_targets = rewards.index_select(1, agent_id) + (gamma * Q_targets_next * (1 - dones.index_select(1, agent_id)))
         # Compute critic loss
         Q_expected = self.critic_local(states_tensor, actions_tensor)
@@ -112,9 +110,6 @@ class Agent():
         # ---------------------------- update actor ---------------------------- #
         # Compute actor loss
         # take the current states and predict actions
-#         actions_pred = [self.actor_local(states) for states in states_list]  
-#         actions_pred = [agent.actor_local(states) if i==self.id else agent.actor_local(states).detach() 
-#                         for i, (agent, states) in enumerate(zip(all_agents, states_list))]
         actions_pred = [agent.actor_local(states) for agent, states in zip(all_agents, states_list)]
         actions_pred_tensor = torch.cat(actions_pred, dim=1).to(device)
         # -1 * (maximize) Q value for the current prediction
